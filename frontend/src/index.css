@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+@taiwind base;
+@taiwind components;
+@taiwind utilities;
+
+
+.input {
+  width: 100%;
+  background: #eeeeee;
+  border-radius: 8px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
