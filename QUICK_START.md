@@ -11,12 +11,12 @@
 
 ```bash
 # Frontend
-cd frontend
-npm install
+cd frontend    npm run dev
+
 
 # Backend (if available)
-cd backend
-npm install
+cd backend   npx nodemon
+
 ```
 
 ### Step 2: Environment Configuration
