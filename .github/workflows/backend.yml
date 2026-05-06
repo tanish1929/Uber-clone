@@ -1,0 +1,94 @@
+name: Backend Tests & Build
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'Backend/**'
+      - '.github/workflows/backend.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'Backend/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      mongodb:
+        image: mongo:7
+        options: >-
+          --health-cmd mongosh
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 27017:27017
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: Backend/package-lock.json
+
+      - name: Install dependencies
+        run: cd Backend && npm install
+
+      - name: Verify code format
+        run: cd Backend && npm run lint --if-present
+
+      - name: Build
+        env:
+          DB_CONNECT: mongodb://localhost:27017/uber_clone_test
+          JWT_SECRET: test_secret_key
+          NODE_ENV: test
+        run: cd Backend && npm run build --if-present
+
+      - name: Run tests
+        env:
+          DB_CONNECT: mongodb://localhost:27017/uber_clone_test
+          JWT_SECRET: test_secret_key
+          NODE_ENV: test
+        run: cd Backend && npm test --if-present
+
+  build-docker:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./Backend
+          push: false
+          tags: uber-clone-backend:${{ github.sha }}
+
+  security:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: 'Backend'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'
