@@ -1,3 +1,10 @@
 .env
 node_modules
 
+# Resume and Interview Prep
+INTERVIEW_PREP.md
+My_resume.pdf
+My_resume*.pdf
+frontend/My_resume.pdf
+frontend/My_resume*.pdf
+
