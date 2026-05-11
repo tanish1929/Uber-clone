@@ -78,7 +78,8 @@ module.exports.registerUser = async (req, res) => {
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
+            // Return first error message for better client feedback
+            return res.status(400).json({ error: errors.array()[0].msg });
         }
 
         const { fullname, email, password } = req.body;
@@ -91,17 +92,17 @@ module.exports.registerUser = async (req, res) => {
         // 🔍 Check existing user
         const isUserAlreadyExist = await userModel.findOne({ email });
         if (isUserAlreadyExist) {
-            return res.status(400).json({ error: 'User already exists' });
+            return res.status(400).json({ error: 'User already exists with this email' });
         }
 
         // 🔐 Hash password
         const hashedPassword = await userModel.hashPassword(password);
 
-        // ✅ CREATE USER (FIXED LINE)
+        // ✅ CREATE USER
         const user = await userModel.create({
             fullname: {
                 firstname: fullname.firstname,
-                lastname: fullname.lastname
+                lastname: fullname.lastname || ''
             },
             email,
             password: hashedPassword
@@ -114,7 +115,7 @@ module.exports.registerUser = async (req, res) => {
 
     } catch (err) {
         console.log("REGISTER ERROR:", err);
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ error: err.message || 'Registration failed' });
     }
 };
 

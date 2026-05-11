@@ -9,6 +9,8 @@ const UserSignup = () => {
   const [firstName, setfirstName] = useState('')
   const [lastName, setlastName] = useState('')
   const [userData, setUserData] = useState({})
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
   const navigate = useNavigate()
   const { user, setUser } = useContext(UserDataContext)
@@ -16,30 +18,51 @@ const UserSignup = () => {
   
   const submitHandler = async (e) => {
     e.preventDefault()
-   
-    // ✅ Here you would typically handle the signup logic, such as sending a request to your backend API.
-    const newUser ={
-      fullname:{
-        firstname:firstName,
-        lastname:lastName
-      },
-      email: email,
-      password: password
-     
-     }
-      // console.log(userData) if we wnt to see the data in console
-     
-       const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/users/register`, newUser)
+    setError('')
+    setLoading(true)
 
+    // ✅ Validation checks
+    if (firstName.length < 3) {
+      setError('First name must be at least 3 characters long')
+      setLoading(false)
+      return
+    }
+    if (lastName.length < 3) {
+      setError('Last name must be at least 3 characters long')
+      setLoading(false)
+      return
+    }
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters long')
+      setLoading(false)
+      return
+    }
 
-      if(response.status === 201){
-        const data = response.data
-        setUser(data.user)
-        localStorage.setItem('token',data.token)
-          navigate('/home')
+    try {
+      const newUser = {
+        fullname: {
+          firstname: firstName,
+          lastname: lastName
+        },
+        email: email,
+        password: password
       }
 
-       
+      const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/users/register`, newUser)
+
+      if (response.status === 201) {
+        const data = response.data
+        setUser(data.user)
+        localStorage.setItem('token', data.token)
+        navigate('/home')
+      }
+    } catch (err) {
+      const errorMessage = err.response?.data?.error || err.response?.data?.errors?.[0]?.msg || err.message || 'Signup failed'
+      setError(errorMessage)
+      console.error('Signup error:', err)
+    } finally {
+      setLoading(false)
+    }
 
     setemail('')
     setpassword('')
@@ -59,6 +82,12 @@ const UserSignup = () => {
           src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png"
           alt="uber logo"
         />
+
+        {error && (
+          <div className='mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded'>
+            {error}
+          </div>
+        )}
 
         <form onSubmit={(e) => {
           submitHandler(e)
@@ -105,8 +134,8 @@ const UserSignup = () => {
             onChange={(e) => setpassword(e.target.value)}
           />
 
-          <button type='submit' className='bg-black text-white font-semibold rounded px-4 py-2 w-full'>
-            Sign Up
+          <button type='submit' disabled={loading} className='bg-black text-white font-semibold rounded px-4 py-2 w-full disabled:bg-gray-400 disabled:cursor-not-allowed'>
+            {loading ? 'Signing Up...' : 'Sign Up'}
           </button>
 
         </form>
