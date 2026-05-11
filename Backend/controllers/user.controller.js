@@ -142,7 +142,12 @@ module.exports.loginUser = async (req, res) => {
 
         const token = user.generateAuthToken();
 
-        res.cookie('token', token);
+        // ✅ Set cookie with proper options for cross-domain
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'None'
+        });
         res.status(200).json({ user, token });
 
     } catch (err) {

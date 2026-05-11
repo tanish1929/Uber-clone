@@ -20,9 +20,11 @@ const Captainlogin = () => {
     }
 
     try {
+      // ✅ Add withCredentials: true to send cookies
       const response = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/captains/login`,
-        captainData
+        captainData,
+        { withCredentials: true }
       )
 
       if (response.status === 200) {
@@ -36,7 +38,7 @@ const Captainlogin = () => {
 
     } catch (error) {
       console.log(error)
-      alert('Login failed ❌')
+      alert('Login failed: ' + (error.response?.data?.error || error.message))
     }
 
     setEmail('')

@@ -25,12 +25,16 @@ const PaymentForm = ({ amount, rideId, userId, driverId, onSuccess, onCancel }) 
   const createPaymentIntent = async () => {
     try {
       const baseUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:4000'
-      const response = await axios.post(`${baseUrl}/payments/create-payment-intent`, {
-        amount,
-        rideId,
-        userId,
-        driverId
-      })
+      const response = await axios.post(
+        `${baseUrl}/payments/create-payment-intent`,
+        {
+          amount,
+          rideId,
+          userId,
+          driverId
+        },
+        { withCredentials: true }
+      )
       setClientSecret(response.data.clientSecret)
     } catch (err) {
       console.error('Error creating payment intent:', err)

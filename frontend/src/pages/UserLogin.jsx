@@ -18,18 +18,28 @@ const navigate = useNavigate()
     e.preventDefault()
     // ✅ Here you would typically handle the login logic, such as sending a request to your backend API.
     const userData = {
-      email:email,
-      password:password
+      email: email,
+      password: password
     }
 
-    const response =await axios.post(`${import.meta.env.VITE_BASE_URL}/users/login`,userData)
-    if(response.status === 200){
-      const data = response.data
-      setUser(data.user)
-      localStorage.setItem('token',data.token)
-      navigate('/home')
-    }
+    try {
+      // ✅ Add withCredentials: true to send cookies
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/users/login`,
+        userData,
+        { withCredentials: true }
+      )
 
+      if (response.status === 200) {
+        const data = response.data
+        setUser(data.user)
+        localStorage.setItem('token', data.token)
+        navigate('/home')
+      }
+    } catch (error) {
+      console.error('Login error:', error)
+      alert('Login failed: ' + (error.response?.data?.error || error.message))
+    }
 
     setEmail('')
     setPassword('')

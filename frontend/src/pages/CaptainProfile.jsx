@@ -60,6 +60,7 @@ const CaptainProfile = () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
+          withCredentials: true,
         }
       )
 

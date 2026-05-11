@@ -18,7 +18,8 @@ const UserProtectWrapper = ({ children }) => {
         axios.get(`${import.meta.env.VITE_BASE_URL}/users/profile`, {
             headers: {
                 Authorization: `Bearer ${token}`
-            }
+            },
+            withCredentials: true
         }).then((response) => {
             if (response.status === 200) {
                 setUser(response.data.user)

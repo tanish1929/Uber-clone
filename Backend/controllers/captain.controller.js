@@ -46,7 +46,12 @@ module.exports.loginCaptain = async (req,res,next)=>{
         return res.status(401).json({error: 'Invalid email or password'});
     }
     const token = captain.generateAuthToken();
-    res.cookie('token', token);
+    // ✅ Set cookie with proper options for cross-domain
+    res.cookie('token', token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'None'
+    });
     res.status(200).json({captain, token});
 }
 

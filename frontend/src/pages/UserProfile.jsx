@@ -49,6 +49,7 @@ const UserProfile = () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
+          withCredentials: true,
         }
       )
 

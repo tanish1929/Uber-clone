@@ -10,7 +10,8 @@ const CaptainLogout = () => {
         axios.get(`${import.meta.env.VITE_BASE_URL}/captains/logout`, {
             headers: {
                 Authorization: `Bearer ${token}`
-            }
+            },
+            withCredentials: true
         }).then((response) => {
             if (response.status === 200) {
                 localStorage.removeItem('captainToken')

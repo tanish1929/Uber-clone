@@ -12,7 +12,16 @@ const captainRoutes = require('./routes/captain.routes');
 
 connectToDB();
 
-app.use(cors());
+// ✅ CORS Configuration for GitHub Pages and Onrender
+app.use(cors({
+    origin: [
+        'https://tanish1929.github.io',
+        'http://localhost:5173',
+        'http://localhost:3000'
+    ],
+    credentials: true
+}));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
